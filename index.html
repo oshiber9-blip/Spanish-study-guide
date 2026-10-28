@@ -1,1 +1,753 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Fill-in-the-blank Spanish verb game: present tense, irregulars, boot verbs, present progressive, ser vs. estar.">
+<title>Lotería de Verbos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@500&display=swap">
+<style>
+:root {
+  --bg: #EEF3F1;
+  --card: #FFFBF2;
+  --ink: #1E1B2B;
+  --muted: #5B5768;
+  --edge: #1E1B2B;
+  --rosa: #C81E63;
+  --oro: #E9A100;
+  --turq: #0D7F81;
+  --verde: #2F7D24;
+  --rojo: #C2362B;
+  --on-accent: #FFFFFF;
+  --soft-rosa: #FBE3EC;
+  --soft-turq: #DDF1F0;
+  --soft-oro: #FCEFCB;
+  --soft-verde: #E1F1DC;
+  --soft-rojo: #F9E0DD;
+  --f-display: "Alfa Slab One", "Rockwell", "Georgia", serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14121B; --card: #221E2D; --ink: #F3EFF8; --muted: #ABA4BB; --edge: #4A4459;
+    --rosa: #FF6AA3; --oro: #FFC53D; --turq: #3CC9CB; --verde: #77CF63; --rojo: #FF7A6E;
+    --on-accent: #17121C;
+    --soft-rosa: #3A1F2D; --soft-turq: #173336; --soft-oro: #3A3018; --soft-verde: #1F3320; --soft-rojo: #3D1F1E;
+    color-scheme: dark;
+  }
+}
 
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg); color: var(--ink);
+  font-family: var(--f-body); font-size: 17px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+[hidden] { display: none !important; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid var(--turq); outline-offset: 2px; }
+.wrap { max-width: 760px; margin: 0 auto; display: grid; gap: 22px; }
+
+/* papel picado */
+.picado { display: flex; gap: 6px; justify-content: center; margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))); overflow: hidden; height: 46px; }
+.picado span {
+  flex: 0 0 52px; height: 42px;
+  clip-path: polygon(0 0, 100% 0, 100% 78%, 88% 100%, 75% 82%, 62% 100%, 50% 82%, 38% 100%, 25% 82%, 12% 100%, 0 78%);
+  -webkit-mask: radial-gradient(circle at 50% 42%, transparent 6px, #000 6.5px), radial-gradient(circle at 22% 30%, transparent 3px, #000 3.5px);
+  -webkit-mask-composite: source-in; mask-composite: intersect;
+  mask: radial-gradient(circle at 50% 42%, transparent 6px, #000 6.5px), radial-gradient(circle at 22% 30%, transparent 3px, #000 3.5px);
+}
+.picado span:nth-child(4n+1) { background: var(--rosa); }
+.picado span:nth-child(4n+2) { background: var(--oro); }
+.picado span:nth-child(4n+3) { background: var(--turq); }
+.picado span:nth-child(4n+4) { background: var(--verde); }
+
+header.top { display: grid; gap: 6px; text-align: left; }
+.eyebrow { font-family: var(--f-mono); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(38px, 9vw, 64px); line-height: 1; margin: 0; letter-spacing: .01em; text-wrap: balance; }
+h1 em { font-style: normal; color: var(--rosa); }
+.sub { margin: 0; color: var(--muted); max-width: 60ch; }
+.examen { display: inline-flex; align-items: center; gap: 8px; justify-self: start; background: var(--oro); color: #1E1B2B; font-weight: 700; padding: 4px 12px; border-radius: 4px; font-size: 15px; }
+
+nav.tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+nav.tabs button { background: transparent; border: 2px solid var(--edge); border-radius: 999px; padding: 6px 16px; font-weight: 700; }
+nav.tabs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* Lotería cards */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 14px; }
+.lcard {
+  background: var(--card); border: 3px solid var(--edge); border-radius: 6px;
+  padding: 8px; display: grid; grid-template-rows: auto 1fr auto; gap: 6px;
+  text-align: left; min-height: 228px; transition: transform .15s ease;
+}
+.lcard:hover { transform: translateY(-3px) rotate(-.6deg); }
+.lcard .num { display: flex; justify-content: space-between; align-items: center; font-family: var(--f-mono); font-size: 14px; }
+.lcard .num b { font-family: var(--f-display); font-weight: 400; font-size: 22px; }
+.lcard .art { border: 2px solid var(--edge); border-radius: 3px; display: grid; place-items: center; padding: 10px 6px; font-family: var(--f-display); font-size: 26px; line-height: 1.05; text-align: center; }
+.lcard .art small { display: block; font-family: var(--f-body); font-size: 13px; font-weight: 700; margin-top: 4px; opacity: .85; }
+.lcard .art svg { width: 64px; height: 64px; }
+.lcard .name { font-family: var(--f-display); font-weight: 400; font-size: 18px; text-align: center; line-height: 1.1; }
+.lcard .what { font-size: 13px; color: var(--muted); text-align: center; line-height: 1.3; }
+.stars { color: var(--oro); letter-spacing: 2px; font-size: 15px; }
+.stars .off { color: var(--edge); opacity: .35; }
+.c-rosa .art { background: var(--soft-rosa); color: var(--rosa); }
+.c-turq .art { background: var(--soft-turq); color: var(--turq); }
+.c-oro .art { background: var(--soft-oro); color: var(--ink); }
+.c-verde .art { background: var(--soft-verde); color: var(--verde); }
+.c-jefe { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.c-jefe .art { background: var(--rosa); color: var(--on-accent); border-color: var(--bg); }
+.c-jefe .what { color: var(--bg); opacity: .75; }
+.c-jefe .stars .off { color: var(--bg); }
+
+/* Play screen */
+.hud { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.hud .lvl { font-family: var(--f-display); font-size: 20px; }
+.hud .meta { display: flex; gap: 14px; align-items: center; font-family: var(--f-mono); font-variant-numeric: tabular-nums; flex-wrap: wrap; }
+.hearts { color: var(--rosa); font-size: 20px; letter-spacing: 2px; }
+.hearts .gone { opacity: .2; }
+.streak { background: var(--soft-oro); padding: 2px 10px; border-radius: 999px; }
+.linkbtn { background: none; border: none; text-decoration: underline; color: var(--muted); padding: 0; font-size: 15px; }
+.dots { display: flex; gap: 5px; flex-wrap: wrap; }
+.dots i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--edge); display: block; }
+.dots i.ok { background: var(--verde); border-color: var(--verde); }
+.dots i.almost { background: var(--oro); border-color: var(--oro); }
+.dots i.bad { background: var(--rojo); border-color: var(--rojo); }
+.dots i.now { background: var(--ink); }
+
+.qcard { background: var(--card); border: 3px solid var(--edge); border-radius: 6px; padding: clamp(18px, 4vw, 30px); display: grid; gap: 18px; position: relative; }
+.qtag { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.prompt { font-size: clamp(22px, 5vw, 30px); line-height: 1.35; font-weight: 700; text-wrap: balance; }
+.prompt .pill { display: inline-block; padding: 2px 12px; border-radius: 6px; margin: 2px 0; }
+.prompt .subj { background: var(--soft-turq); color: var(--turq); }
+.prompt .verb { background: var(--soft-rosa); color: var(--rosa); }
+.prompt .gloss { display: block; font-size: 15px; font-weight: 400; color: var(--muted); margin-top: 6px; }
+.prompt .arrow { color: var(--muted); padding: 0 4px; }
+.blank { display: inline-block; min-width: 4.5em; border-bottom: 3px solid var(--ink); text-align: center; color: var(--turq); }
+.blank.filled-bad { color: var(--rojo); }
+.cue { color: var(--muted); font-weight: 400; }
+.ansrow { display: flex; gap: 10px; flex-wrap: wrap; }
+.ansrow input { flex: 1 1 220px; min-width: 0; font: inherit; font-size: 22px; padding: 10px 14px; border: 3px solid var(--edge); border-radius: 6px; background: var(--bg); color: var(--ink); }
+.ansrow input.ok { border-color: var(--verde); }
+.ansrow input.bad { border-color: var(--rojo); }
+.ansrow input.almost { border-color: var(--oro); }
+.btn { border: 3px solid var(--edge); background: var(--rosa); color: var(--on-accent); border-color: var(--rosa); border-radius: 6px; padding: 10px 20px; font-weight: 700; font-size: 18px; }
+.btn.alt { background: transparent; color: var(--ink); border-color: var(--edge); }
+.btn:disabled { opacity: .45; cursor: default; }
+.accents { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.accents button { width: 42px; height: 40px; border: 2px solid var(--edge); background: var(--bg); border-radius: 6px; font-size: 19px; font-weight: 700; }
+.accents .hintbtn { width: auto; padding: 0 12px; font-size: 15px; margin-left: auto; }
+.hintbox { background: var(--soft-oro); border-radius: 6px; padding: 10px 14px; font-size: 16px; }
+.mc { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.mc button { border: 3px solid var(--edge); background: var(--bg); border-radius: 6px; padding: 14px; font-size: 21px; font-weight: 700; text-align: left; display: flex; gap: 10px; align-items: center; }
+.mc button kbd { font-family: var(--f-mono); font-size: 13px; border: 1.5px solid var(--muted); border-radius: 4px; padding: 0 6px; color: var(--muted); }
+.mc button.ok { border-color: var(--verde); background: var(--soft-verde); }
+.mc button.bad { border-color: var(--rojo); background: var(--soft-rojo); }
+.mc button:disabled { cursor: default; }
+.feedback { border-radius: 6px; padding: 14px 16px; display: grid; gap: 4px; }
+.feedback.ok { background: var(--soft-verde); }
+.feedback.almost { background: var(--soft-oro); }
+.feedback.bad { background: var(--soft-rojo); }
+.feedback .head { font-family: var(--f-display); font-size: 22px; }
+.feedback.ok .head { color: var(--verde); }
+.feedback.bad .head { color: var(--rojo); }
+.feedback .correct { font-size: 20px; font-weight: 700; }
+.feedback .why { color: var(--ink); }
+.pts { position: absolute; right: 18px; top: 14px; font-family: var(--f-mono); color: var(--verde); font-weight: 700; animation: rise .9s ease forwards; }
+@keyframes rise { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-26px); } }
+
+/* Results */
+.result { background: var(--card); border: 3px solid var(--edge); border-radius: 6px; padding: clamp(18px, 4vw, 30px); display: grid; gap: 16px; text-align: center; justify-items: center; }
+.stamp { font-family: var(--f-display); font-size: clamp(44px, 12vw, 72px); color: var(--rosa); border: 5px solid var(--rosa); padding: 2px 18px; border-radius: 8px; transform: rotate(-6deg); animation: stamp .45s cubic-bezier(.2,1.6,.4,1) both; }
+.stamp.lose { color: var(--muted); border-color: var(--muted); }
+@keyframes stamp { from { transform: rotate(-6deg) scale(2.2); opacity: 0; } to { transform: rotate(-6deg) scale(1); opacity: 1; } }
+.bigstars { font-size: 40px; color: var(--oro); letter-spacing: 6px; }
+.bigstars .off { color: var(--edge); opacity: .3; }
+.statrow { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.stat { border: 2px solid var(--edge); border-radius: 6px; padding: 8px 16px; min-width: 110px; }
+.stat b { display: block; font-family: var(--f-mono); font-size: 24px; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.missed { width: 100%; text-align: left; display: grid; gap: 8px; }
+.missed h3 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 20px; }
+.missed li { border-left: 4px solid var(--rojo); padding: 4px 10px; background: var(--bg); border-radius: 0 6px 6px 0; }
+.missed ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.missed .yours { color: var(--rojo); text-decoration: line-through; }
+.missed .right { color: var(--verde); font-weight: 700; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+/* Cheat sheet */
+.sheet { display: grid; gap: 16px; }
+.panel { background: var(--card); border: 3px solid var(--edge); border-radius: 6px; padding: 18px; display: grid; gap: 10px; min-width: 0; }
+.panel h2 { font-family: var(--f-display); font-weight: 400; font-size: 22px; margin: 0; }
+.panel p { margin: 0; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 16px; }
+th, td { border: 1.5px solid var(--edge); padding: 5px 9px; text-align: left; }
+th { background: var(--soft-turq); }
+td.v { font-weight: 700; color: var(--rosa); white-space: nowrap; }
+.note { background: var(--soft-oro); border-radius: 6px; padding: 8px 12px; }
+.boot { color: var(--rosa); font-weight: 700; }
+.ex { font-style: italic; }
+.motto { text-align: center; font-family: var(--f-display); font-size: 20px; background: var(--oro); color: #1E1B2B; padding: 10px; border-radius: 6px; }
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="picado" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+  <header class="top">
+    <div class="eyebrow">Español 3 CP · Unidad preliminar</div>
+    <h1>Lotería de <em>Verbos</em></h1>
+    <p class="sub">Every topic from your study guide, as a game: regular and irregular present, boot verbs, present progressive, and ser vs. estar. Type the missing verb, build streaks, and clear the boss round.</p>
+    <span class="examen" id="examen">Unit test: October 29</span>
+  </header>
+
+  <nav class="tabs" aria-label="Sections">
+    <button id="tab-play" aria-pressed="true">Juegos</button>
+    <button id="tab-sheet" aria-pressed="false">Hoja de repaso</button>
+  </nav>
+
+  <!-- HOME -->
+  <section id="home" class="grid" aria-label="Levels"></section>
+
+  <!-- PLAY -->
+  <section id="play" hidden>
+    <div style="display:grid; gap:14px">
+      <div class="hud">
+        <div class="lvl" id="hud-lvl"></div>
+        <div class="meta">
+          <span id="hud-hearts" class="hearts"></span>
+          <span class="streak" id="hud-streak">racha 0</span>
+          <span id="hud-score">0 pts</span>
+          <button class="linkbtn" id="quit">Salir</button>
+        </div>
+      </div>
+      <div class="dots" id="dots"></div>
+      <div class="qcard" id="qcard"></div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" hidden></section>
+
+  <!-- CHEAT SHEET -->
+  <section id="sheet" class="sheet" hidden>
+    <div class="panel">
+      <h2>Presente: regular verbs</h2>
+      <p>Use it for routines and what happens regularly. Step 1: remove <b>-ar, -er, -ir</b>. Step 2: add the ending.</p>
+      <div class="tbl"><table>
+        <tr><th>Sujeto</th><th>-AR</th><th>-ER</th><th>-IR</th></tr>
+        <tr><td>yo</td><td>-o</td><td>-o</td><td>-o</td></tr>
+        <tr><td>tú</td><td>-as</td><td>-es</td><td>-es</td></tr>
+        <tr><td>él / ella / Ud.</td><td>-a</td><td>-e</td><td>-e</td></tr>
+        <tr><td>nosotros</td><td>-amos</td><td>-emos</td><td>-imos</td></tr>
+        <tr><td>vosotros</td><td>-áis</td><td>-éis</td><td>-ís</td></tr>
+        <tr><td>ellos / ellas / Uds.</td><td>-an</td><td>-en</td><td>-en</td></tr>
+      </table></div>
+      <p class="note">Ejemplo: hablar → habl- + o = <b>hablo</b></p>
+    </div>
+
+    <div class="panel">
+      <h2>Presente irregular</h2>
+      <p>Order: yo, tú, él/ella/Ud., nosotros, vosotros, ellos/ellas/Uds.</p>
+      <div class="tbl"><table>
+        <tr><td class="v">ser</td><td>soy, eres, es, somos, sois, son</td></tr>
+        <tr><td class="v">estar</td><td>estoy, estás, está, estamos, estáis, están</td></tr>
+        <tr><td class="v">ir</td><td>voy, vas, va, vamos, vais, van</td></tr>
+        <tr><td class="v">tener</td><td>tengo, tienes, tiene, tenemos, tenéis, tienen</td></tr>
+      </table></div>
+      <div class="two">
+        <div>
+          <p><b>Special yo forms</b></p>
+          <p>hacer → hago · poner → pongo<br>salir → salgo · saber → sé</p>
+        </div>
+        <div>
+          <p><b>Stem changes (boot verbs)</b></p>
+          <p>pensar → <span class="boot">pie</span>nso · poder → <span class="boot">pue</span>do<br>pedir → <span class="boot">pi</span>do · jugar → <span class="boot">jue</span>go</p>
+        </div>
+      </div>
+      <p class="note"><b>No stem change in nosotros or vosotros:</b> podemos, pensamos, pedimos, jugamos.</p>
+    </div>
+
+    <div class="two">
+      <div class="panel">
+        <h2>Presente progresivo</h2>
+        <p>Use it for what is happening <b>right now</b>.</p>
+        <p class="note"><b>estar + -ando / -iendo</b></p>
+        <p>hablar → hablando · comer → comiendo · vivir → viviendo</p>
+        <p class="ex">Yo estoy estudiando. = I am studying.</p>
+        <p><b>Watch for:</b> leer → leyendo · dormir → durmiendo · pedir → pidiendo</p>
+      </div>
+      <div class="panel">
+        <h2>¿Ser o estar?</h2>
+        <p><b>SER:</b> who someone is, where someone is from, traits, jobs, time/date.</p>
+        <p class="ex">Soy estudiante. · Mi amiga es simpática.</p>
+        <p><b>ESTAR:</b> where someone/something is, feelings, conditions, actions happening now.</p>
+        <p class="ex">Estoy cansado. · El libro está en la mesa.</p>
+        <p class="note"><b>Event location uses SER:</b> La fiesta es en la escuela.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Write your own</h2>
+      <p>The guide asks for two sentences of your own. Models to copy the pattern from:</p>
+      <p><b>Daily routine (presente):</b> <span class="ex">Todos los días yo camino a la escuela y como el almuerzo a las doce.</span></p>
+      <p><b>Right now (progresivo):</b> <span class="ex">Ahora mismo estoy estudiando para el examen de español.</span></p>
+    </div>
+
+    <div class="motto">Present = routine. Present progressive = right now.</div>
+  </section>
+</div>
+
+<script>
+(function () {
+"use strict";
+
+/* ---------- data ---------- */
+const PERSONS = ["yo", "tú", "él/ella/Ud.", "nosotros", "vosotros", "ellos/ellas/Uds."];
+const SUBJECTS = [
+  ["yo", 0, 1], ["tú", 1, 1], ["él", 2, .7], ["ella", 2, .7], ["usted", 2, .5],
+  ["nosotros", 3, 1], ["nosotras", 3, .4], ["vosotros", 4, .35],
+  ["ellos", 5, .7], ["ellas", 5, .5], ["ustedes", 5, .5]
+];
+const ENDINGS = {
+  ar: ["o", "as", "a", "amos", "áis", "an"],
+  er: ["o", "es", "e", "emos", "éis", "en"],
+  ir: ["o", "es", "e", "imos", "ís", "en"]
+};
+const REGULAR = {
+  hablar: "to speak", estudiar: "to study", trabajar: "to work", bailar: "to dance", cantar: "to sing",
+  caminar: "to walk", comprar: "to buy", escuchar: "to listen", mirar: "to watch", nadar: "to swim",
+  necesitar: "to need", preparar: "to prepare", tomar: "to take / drink", viajar: "to travel", llegar: "to arrive",
+  comer: "to eat", beber: "to drink", leer: "to read", correr: "to run", aprender: "to learn",
+  comprender: "to understand", vender: "to sell",
+  vivir: "to live", escribir: "to write", abrir: "to open", recibir: "to receive", compartir: "to share",
+  decidir: "to decide", asistir: "to attend", subir: "to go up"
+};
+const IRR = {
+  ser:     { m: "to be (identity)", f: ["soy","eres","es","somos","sois","son"], note: "ser is completely irregular: soy, eres, es, somos, sois, son." },
+  estar:   { m: "to be (location, feelings)", f: ["estoy","estás","está","estamos","estáis","están"], note: "estar: estoy, estás, está, estamos, estáis, están. Accents on every form except estoy and estamos." },
+  ir:      { m: "to go", f: ["voy","vas","va","vamos","vais","van"], note: "ir is completely irregular: voy, vas, va, vamos, vais, van." },
+  tener:   { m: "to have", f: ["tengo","tienes","tiene","tenemos","tenéis","tienen"], note: "tener: yo is tengo, then e→ie in the boot (tienes, tiene, tienen). No change in nosotros/vosotros.", boot: "tien", reg: true },
+  hacer:   { m: "to do / make", f: ["hago","haces","hace","hacemos","hacéis","hacen"], note: "hacer has a special yo form: hago. Everything else is regular.", reg: true },
+  poner:   { m: "to put", f: ["pongo","pones","pone","ponemos","ponéis","ponen"], note: "poner has a special yo form: pongo. Everything else is regular.", reg: true },
+  salir:   { m: "to leave / go out", f: ["salgo","sales","sale","salimos","salís","salen"], note: "salir has a special yo form: salgo. Everything else is regular.", reg: true },
+  saber:   { m: "to know (facts)", f: ["sé","sabes","sabe","sabemos","sabéis","saben"], note: "saber has a special yo form: sé (with an accent). Everything else is regular.", reg: true },
+  pensar:  { m: "to think", f: ["pienso","piensas","piensa","pensamos","pensáis","piensan"], note: "pensar is a boot verb, e→ie. No stem change in nosotros/vosotros.", boot: "piens", reg: true },
+  poder:   { m: "to be able to", f: ["puedo","puedes","puede","podemos","podéis","pueden"], note: "poder is a boot verb, o→ue. No stem change in nosotros/vosotros.", boot: "pued", reg: true },
+  pedir:   { m: "to ask for / order", f: ["pido","pides","pide","pedimos","pedís","piden"], note: "pedir is a boot verb, e→i. No stem change in nosotros/vosotros.", boot: "pid", reg: true },
+  jugar:   { m: "to play (sports, games)", f: ["juego","juegas","juega","jugamos","jugáis","juegan"], note: "jugar is a boot verb, u→ue. No stem change in nosotros/vosotros.", boot: "jueg", reg: true },
+  querer:  { m: "to want", f: ["quiero","quieres","quiere","queremos","queréis","quieren"], note: "querer is a boot verb, e→ie. No stem change in nosotros/vosotros.", boot: "quier", reg: true },
+  dormir:  { m: "to sleep", f: ["duermo","duermes","duerme","dormimos","dormís","duermen"], note: "dormir is a boot verb, o→ue. No stem change in nosotros/vosotros.", boot: "duerm", reg: true },
+  volver:  { m: "to return", f: ["vuelvo","vuelves","vuelve","volvemos","volvéis","vuelven"], note: "volver is a boot verb, o→ue. No stem change in nosotros/vosotros.", boot: "vuelv", reg: true },
+  servir:  { m: "to serve", f: ["sirvo","sirves","sirve","servimos","servís","sirven"], note: "servir is a boot verb, e→i. No stem change in nosotros/vosotros.", boot: "sirv", reg: true }
+};
+const BIG4 = ["ser", "estar", "ir", "tener"];
+const YO_STEM = ["hacer", "poner", "salir", "saber", "pensar", "poder", "pedir", "jugar", "pensar", "poder", "pedir", "jugar", "querer", "dormir", "volver", "servir", "tener"];
+const PART_SPECIAL = {
+  leer: ["leyendo", "When the stem ends in a vowel, -iendo becomes -yendo: leyendo."],
+  creer: ["creyendo", "When the stem ends in a vowel, -iendo becomes -yendo: creyendo."],
+  traer: ["trayendo", "When the stem ends in a vowel, -iendo becomes -yendo: trayendo."],
+  dormir: ["durmiendo", "dormir changes o→u in the participle: durmiendo."],
+  pedir: ["pidiendo", "pedir changes e→i in the participle: pidiendo."],
+  servir: ["sirviendo", "servir changes e→i in the participle: sirviendo."]
+};
+const GLOSS = Object.assign({ creer: "to believe", traer: "to bring" }, REGULAR);
+Object.keys(IRR).forEach(k => GLOSS[k] = IRR[k].m);
+
+const SER_ESTAR = [
+  ["Yo ___ de Nueva Jersey.", "soy", "ser", "Origin (where someone is from) uses SER."],
+  ["Mi mochila ___ en la clase.", "está", "estar", "Location of a thing uses ESTAR."],
+  ["Nosotros ___ cansados.", "estamos", "estar", "Feelings use ESTAR."],
+  ["Mi padre ___ profesor.", "es", "ser", "Jobs use SER."],
+  ["Ahora tú ___ escribiendo.", "estás", "estar", "An action happening now (progressive) uses ESTAR."],
+  ["Mi amiga ___ simpática.", "es", "ser", "Personality traits use SER."],
+  ["El libro ___ en la mesa.", "está", "estar", "Location of a thing uses ESTAR."],
+  ["La fiesta ___ en la escuela.", "es", "ser", "Careful: the location of an EVENT uses SER."],
+  ["Hoy ___ el 29 de octubre.", "es", "ser", "Dates use SER."],
+  ["___ las dos de la tarde.", "son", "ser", "Time uses SER (plural for hours after one: son las dos)."],
+  ["Mis abuelos ___ de México.", "son", "ser", "Origin uses SER."],
+  ["Tú ___ muy inteligente.", "eres", "ser", "Traits use SER."],
+  ["Ellas ___ nerviosas por el examen.", "están", "estar", "Feelings use ESTAR."],
+  ["Ustedes ___ estudiantes.", "son", "ser", "Who someone is uses SER."],
+  ["¿Dónde ___ el baño?", "está", "estar", "Where something is uses ESTAR."],
+  ["El concierto ___ en el gimnasio.", "es", "ser", "The location of an EVENT uses SER."],
+  ["Yo ___ enfermo hoy.", "estoy", "estar", "Conditions (sick today) use ESTAR."],
+  ["Nosotros ___ altos.", "somos", "ser", "Physical traits use SER."],
+  ["Mi hermana ___ hablando por teléfono.", "está", "estar", "An action happening now uses ESTAR."],
+  ["Ella ___ doctora.", "es", "ser", "Jobs use SER."],
+  ["Yo ___ comiendo una manzana.", "estoy", "estar", "An action happening now uses ESTAR."],
+  ["Mis amigos ___ en la cafetería.", "están", "estar", "Where people are uses ESTAR."],
+  ["La clase de español ___ a las nueve.", "es", "ser", "The time of an event uses SER."],
+  ["Ustedes ___ aburridos.", "están", "estar", "Feelings (bored) use ESTAR."],
+  ["Tú ___ contento hoy.", "estás", "estar", "Feelings use ESTAR."],
+  ["El partido de fútbol ___ en el parque.", "es", "ser", "The location of an EVENT uses SER."],
+  ["Vosotros ___ en Madrid.", "estáis", "estar", "Where people are uses ESTAR."],
+  ["Yo ___ alumno de español 3.", "soy", "ser", "Who someone is uses SER."]
+];
+const RUTINA = [
+  ["Todos los días, yo ___ (caminar) a la escuela.", "camino", "r"],
+  ["Ahora mismo, ella ___ (leer) un libro.", "está leyendo", "a"],
+  ["Normalmente nosotros ___ (comer) a las seis.", "comemos", "r"],
+  ["En este momento, tú ___ (dormir) en el sofá.", "estás durmiendo", "a"],
+  ["Los lunes, mis amigos ___ (jugar) al fútbol.", "juegan", "r"],
+  ["¡Mira! Los niños ___ (jugar) en el parque ahora.", "están jugando", "a"],
+  ["Cada mañana, mi madre ___ (tomar) café.", "toma", "r"],
+  ["Ahora yo ___ (escribir) un correo.", "estoy escribiendo", "a"],
+  ["Siempre ustedes ___ (estudiar) en la biblioteca.", "estudian", "r"],
+  ["¡Shh! Ahora el bebé ___ (dormir).", "está durmiendo", "a"],
+  ["Los sábados, yo ___ (salir) con mis amigos.", "salgo", "r"],
+  ["En este momento, nosotros ___ (pedir) una pizza.", "estamos pidiendo", "a"],
+  ["Generalmente tú ___ (hacer) la tarea por la noche.", "haces", "r"],
+  ["Ahora mi hermano ___ (escuchar) música.", "está escuchando", "a"],
+  ["Cada día, yo ___ (poner) la mochila en mi cuarto.", "pongo", "r"],
+  ["Ahora ustedes ___ (aprender) los verbos.", "están aprendiendo", "a"],
+  ["Los viernes nosotros ___ (ir) al cine.", "vamos", "r"],
+  ["Ahora mismo ellos ___ (hablar) con la profesora.", "están hablando", "a"],
+  ["Todos los días, ella ___ (pensar) en el examen.", "piensa", "r"],
+  ["En este momento, yo ___ (pedir) ayuda.", "estoy pidiendo", "a"],
+  ["Siempre nosotros ___ (poder) estudiar juntos.", "podemos", "r"]
+];
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const rand = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function pickSubject(filter) {
+  const pool = SUBJECTS.filter(s => !filter || filter(s[1]));
+  let t = pool.reduce((n, s) => n + s[2], 0), r = Math.random() * t;
+  for (const s of pool) { r -= s[2]; if (r <= 0) return s; }
+  return pool[0];
+}
+const regEnd = inf => inf.slice(-2);
+const regConj = (inf, p) => inf.slice(0, -2) + ENDINGS[regEnd(inf)][p];
+function participle(inf) {
+  if (PART_SPECIAL[inf]) return PART_SPECIAL[inf][0];
+  return inf.slice(0, -2) + (regEnd(inf) === "ar" ? "ando" : "iendo");
+}
+const stripAcc = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const PRON = /^(yo|tú|tu|él|ella|usted|ud\.?|nosotros|nosotras|vosotros|vosotras|ellos|ellas|ustedes|uds\.?)\s+/;
+function norm(s) {
+  return s.toLowerCase().replace(/[.,!?¡¿;:"]/g, " ").replace(/\s+/g, " ").trim().replace(PRON, "");
+}
+function sentenceHTML(s, cue) {
+  return s.replace("___", '<span class="blank" id="blank">&nbsp;</span>' + (cue ? ' <span class="cue">' + cue + '</span>' : ""));
+}
+function conjHTML(subj, inf, extra) {
+  return (extra ? '<span class="cue" style="font-size:.7em">' + extra + '</span><br>' : "") +
+    '<span class="pill subj">' + subj + '</span> <span class="arrow">/</span> <span class="pill verb">' + inf + '</span>' +
+    '<span class="gloss">' + inf + ' = ' + (GLOSS[inf] || "") + '</span>';
+}
+
+/* ---------- question generators ---------- */
+function qRegular() {
+  const inf = rand(Object.keys(REGULAR)), s = pickSubject(), p = s[1];
+  const ans = regConj(inf, p), e = regEnd(inf);
+  return {
+    key: "r:" + inf + s[0], type: "type", tag: "Presente regular", prompt: conjHTML(s[0], inf), answer: ans,
+    hint: "-" + e.toUpperCase() + " endings: " + ENDINGS[e].map((x, i) => PERSONS[i] + " -" + x).join(" · "),
+    why: inf + " → " + inf.slice(0, -2) + "- + -" + ENDINGS[e][p] + " = " + ans + " (" + PERSONS[p] + ")."
+  };
+}
+function irrDistractors(inf, p) {
+  const v = IRR[inf], ans = v.f[p], c = [];
+  if (v.reg) c.push(regConj(inf, p));
+  if (v.boot && (p === 3 || p === 4)) c.push(v.boot + ENDINGS[regEnd(inf)][p]);
+  if (v.boot && p !== 3 && p !== 4) c.push(regConj(inf, p));
+  const others = shuffle([0, 1, 2, 3, 4, 5].filter(i => i !== p && i !== 4)).map(i => v.f[i]);
+  const fakes = shuffle([...new Set(c)].filter(x => x !== ans));
+  const out = [];
+  for (const x of fakes.concat(others)) { if (x !== ans && !out.includes(x)) out.push(x); if (out.length === 2) break; }
+  return shuffle([ans].concat(out));
+}
+function qIrr(list, mcChance, nosBias) {
+  const inf = rand(list);
+  const s = Math.random() < (nosBias || 0) ? pickSubject(p => p === 3 || p === 4) : pickSubject();
+  const p = s[1], v = IRR[inf], ans = v.f[p];
+  const mc = Math.random() < mcChance;
+  const q = {
+    key: "i:" + inf + s[0], tag: v.boot ? "Boot verb" : (["hacer","poner","salir","saber"].includes(inf) ? "Yo especial" : "Irregular"),
+    answer: ans, hint: v.note, why: v.note + " → " + PERSONS[p] + ": " + ans + "."
+  };
+  if (mc) { q.type = "mc"; q.options = irrDistractors(inf, p); q.prompt = conjHTML(s[0], inf, "Choose the correct form"); }
+  else { q.type = "type"; q.prompt = conjHTML(s[0], inf); }
+  return q;
+}
+function qProg() {
+  const special = Object.keys(PART_SPECIAL);
+  const inf = Math.random() < .4 ? rand(special) : rand(Object.keys(REGULAR).filter(v => v !== "leer"));
+  const s = pickSubject(), p = s[1];
+  const est = IRR.estar.f[p], part = participle(inf), ans = est + " " + part;
+  const sp = PART_SPECIAL[inf];
+  return {
+    key: "p:" + inf + s[0], type: "type", tag: "Presente progresivo · ahora mismo",
+    prompt: conjHTML(s[0], inf, "What is happening right now?"), answer: ans,
+    hint: "estar (" + PERSONS[p] + ") + -ando for -ar verbs, -iendo for -er/-ir verbs." + (sp ? " This one is a watch-for verb!" : ""),
+    why: "estar → " + est + "; " + inf + " → " + part + ". " + (sp ? sp[1] : "")
+  };
+}
+function qSerEstar(row) {
+  row = row || rand(SER_ESTAR);
+  return {
+    key: "se:" + row[0], type: "type", tag: "¿Ser o estar?", prompt: sentenceHTML(row[0], "(ser / estar)"),
+    answer: row[1], hint: "SER: who, origin, traits, jobs, time/date, event location. ESTAR: location, feelings, conditions, -ando/-iendo.",
+    why: row[3] + " → " + row[1] + "."
+  };
+}
+function qRutina(row) {
+  row = row || rand(RUTINA);
+  const isNow = row[2] === "a";
+  return {
+    key: "ru:" + row[0], type: "type", tag: "¿Rutina o ahora?", prompt: sentenceHTML(row[0]), answer: row[1],
+    hint: "Look for the time clue. Routine words (todos los días, siempre, los lunes) → presente. Right-now words (ahora, en este momento) → estar + -ando/-iendo.",
+    why: (isNow ? "Right now → present progressive (estar + -ando/-iendo)" : "Routine → simple present") + ": " + row[1] + "."
+  };
+}
+function uniq(gen, n) {
+  const out = [], seen = new Set(); let guard = 0;
+  while (out.length < n && guard++ < 400) { const q = gen(); if (!seen.has(q.key)) { seen.add(q.key); out.push(q); } }
+  return out;
+}
+
+/* Exact items from the study guide */
+function guideQs() {
+  const t = (s, a, why, tag) => ({ key: "g" + s, type: "type", tag, prompt: sentenceHTML(s), answer: a, why, hint: why });
+  const c = (subj, inf, a, why, tag) => ({ key: "g" + subj + inf + tag, type: "type", tag, prompt: conjHTML(subj, inf), answer: a, why, hint: why });
+  const m = (s, opts, a, why) => ({ key: "g" + s, type: "mc", tag: "Guía B · Irregular present", prompt: sentenceHTML(s), options: opts, answer: a, why, hint: why });
+  const se = (s, a, why) => ({ key: "g" + s, type: "type", tag: "Guía D · Ser vs. estar", prompt: sentenceHTML(s, "(ser / estar)"), answer: a, why, hint: "Choose the verb, then conjugate it." });
+  return [
+    t("Yo ___ (hablar) español todos los días.", "hablo", "Routine → presente. habl- + o = hablo.", "Try it 1"),
+    t("Ahora nosotros ___ (estar) comiendo.", "estamos", "estar (nosotros) = estamos.", "Try it 2"),
+    t("Mi hermano ___ (ser) estudiante.", "es", "Who someone is → ser. Mi hermano = él → es.", "Try it 3"),
+    t("Los libros ___ (estar) en la mochila.", "están", "Location → estar. Los libros = ellos → están.", "Try it 4"),
+    c("tú", "estudiar", "estudias", "estudi- + as = estudias.", "Guía A1 · Regular present"),
+    c("ella", "comer", "come", "com- + e = come.", "Guía A2 · Regular present"),
+    c("nosotros", "vivir", "vivimos", "viv- + imos = vivimos.", "Guía A3 · Regular present"),
+    c("ellos", "trabajar", "trabajan", "trabaj- + an = trabajan.", "Guía A4 · Regular present"),
+    m("Yo ___ un libro.", ["tengo", "tienes"], "tengo", "tener has a special yo form: tengo."),
+    m("Ellos ___ a la escuela.", ["va", "van"], "van", "ir (ellos) = van."),
+    m("Tú ___ la tarea.", ["haces", "hago"], "haces", "hago is only for yo. tú → haces."),
+    m("Nosotros ___ estudiar.", ["podemos", "puedemos"], "podemos", "No stem change in nosotros: podemos."),
+    m("Ella ___ ayuda.", ["pide", "pede"], "pide", "pedir is e→i in the boot: pide."),
+    c("tú", "comer", "estás comiendo", "estás + comiendo.", "Guía C10 · Progressive"),
+    c("nosotros", "estudiar", "estamos estudiando", "estamos + estudiando.", "Guía C11 · Progressive"),
+    c("ellos", "leer", "están leyendo", "están + leyendo (watch for -yendo).", "Guía C12 · Progressive"),
+    c("ella", "dormir", "está durmiendo", "está + durmiendo (o→u).", "Guía C13 · Progressive"),
+    se("Yo ___ de Nueva Jersey.", "soy", "Origin → ser: soy."),
+    se("Mi mochila ___ en la clase.", "está", "Location → estar: está."),
+    se("Nosotros ___ cansados.", "estamos", "Feeling → estar: estamos."),
+    se("Mi padre ___ profesor.", "es", "Job → ser: es."),
+    se("Ahora tú ___ escribiendo.", "estás", "Action happening now → estar: estás.")
+  ];
+}
+
+const BOOT_SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 6h20v30c0 3 2 5 6 6l8 3c4 2 6 5 6 9v4H8V6z" fill="currentColor" opacity=".9"/><path d="M8 52h52" stroke="var(--edge)" stroke-width="3"/><text x="24" y="28" font-size="11" font-family="DM Mono,monospace" fill="var(--card)">ue</text></svg>';
+const LEVELS = [
+  { id: "presente", n: 1, name: "El Presente", what: "Regular -ar, -er, -ir endings", art: "-o -as<small>-a -amos -an</small>", c: "c-turq", make: () => uniq(qRegular, 10) },
+  { id: "grandes", n: 2, name: "Los Cuatro Grandes", what: "ser, estar, ir, tener", art: "SOY<small>estoy · voy · tengo</small>", c: "c-rosa", make: () => uniq(() => qIrr(BIG4, .35), 10) },
+  { id: "botas", n: 3, name: "La Bota", what: "Special yo forms + boot verbs", art: BOOT_SVG + "<small>hago · puedo · pido</small>", c: "c-oro", make: () => uniq(() => qIrr(YO_STEM, .4, .3), 10) },
+  { id: "ahora", n: 4, name: "Ahora Mismo", what: "Present progressive: estar + -ando / -iendo", art: "-NDO<small>leyendo · durmiendo</small>", c: "c-verde", make: () => uniq(qProg, 10) },
+  { id: "serestar", n: 5, name: "Ser o Estar", what: "Choose the verb, then conjugate", art: "¿SER?<small>¿o estar?</small>", c: "c-turq", make: () => shuffle(SER_ESTAR).slice(0, 10).map(r => qSerEstar(r)) },
+  { id: "rutina", n: 6, name: "Rutina o Ahora", what: "Present vs. present progressive", art: "HOY<small>vs. ahora mismo</small>", c: "c-rosa", make: () => shuffle(RUTINA).slice(0, 10).map(r => qRutina(r)) },
+  { id: "guia", n: 7, name: "La Guía", what: "All 22 practice items from your study guide", art: "1–18<small>+ try it</small>", c: "c-oro", make: () => guideQs() },
+  { id: "jefe", n: 8, name: "El Jefe", what: "20 mixed questions · 3 lives · the test rehearsal", art: "JEFE<small>♥ ♥ ♥</small>", c: "c-jefe", lives: 3, make: () => shuffle([].concat(
+      uniq(qRegular, 4), uniq(() => qIrr(BIG4, .3), 2), uniq(() => qIrr(YO_STEM, .3, .3), 3), uniq(qProg, 4),
+      shuffle(SER_ESTAR).slice(0, 4).map(r => qSerEstar(r)), shuffle(RUTINA).slice(0, 3).map(r => qRutina(r)))) }
+];
+
+/* ---------- storage ---------- */
+const KEY = "loteria-verbos-v1";
+let best = {};
+try { best = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { best = {}; }
+function saveBest(id, score, stars) {
+  const b = best[id] || { score: 0, stars: 0 };
+  best[id] = { score: Math.max(b.score, score), stars: Math.max(b.stars, stars) };
+  try { localStorage.setItem(KEY, JSON.stringify(best)); } catch (e) {}
+}
+const starStr = n => "★".repeat(n) + '<span class="off">' + "★".repeat(3 - n) + "</span>";
+
+/* ---------- screens ---------- */
+function show(which) {
+  ["home", "play", "results", "sheet"].forEach(s => $(s).hidden = s !== which);
+  $("tab-play").setAttribute("aria-pressed", which === "sheet" ? "false" : "true");
+  $("tab-sheet").setAttribute("aria-pressed", which === "sheet" ? "true" : "false");
+}
+function renderHome() {
+  $("home").innerHTML = LEVELS.map(l => {
+    const b = best[l.id];
+    return '<button class="lcard ' + l.c + '" data-lvl="' + l.id + '">' +
+      '<div class="num"><b>' + l.n + '</b><span class="stars">' + starStr(b ? b.stars : 0) + '</span></div>' +
+      '<div class="art">' + l.art + '</div>' +
+      '<div><div class="name">' + l.name + '</div><div class="what">' + l.what + (b ? " · best " + b.score : "") + '</div></div>' +
+      '</button>';
+  }).join("");
+  show("home");
+}
+$("home").addEventListener("click", e => { const b = e.target.closest("[data-lvl]"); if (b) start(LEVELS.find(l => l.id === b.dataset.lvl)); });
+$("tab-play").onclick = () => renderHome();
+$("tab-sheet").onclick = () => show("sheet");
+$("quit").onclick = () => renderHome();
+
+/* ---------- game ---------- */
+let G = null;
+function start(level, qs) {
+  G = { level, qs: qs || level.make(), i: 0, score: 0, streak: 0, bestStreak: 0, lives: level.lives || 0,
+        results: [], missed: [], answered: false, hint: false, review: !!qs };
+  show("play");
+  renderQ();
+}
+function renderHud() {
+  $("hud-lvl").textContent = (G.review ? "Repaso · " : "") + G.level.name;
+  $("hud-score").textContent = G.score + " pts";
+  $("hud-streak").textContent = "racha " + G.streak;
+  $("hud-hearts").innerHTML = G.level.lives && !G.review ? "♥".repeat(G.lives) + '<span class="gone">' + "♥".repeat(G.level.lives - G.lives) + "</span>" : "";
+  $("dots").innerHTML = G.qs.map((_, i) => '<i class="' + (G.results[i] || (i === G.i ? "now" : "")) + '"></i>').join("");
+}
+function renderQ() {
+  const q = G.qs[G.i];
+  G.answered = false; G.hint = false;
+  renderHud();
+  let h = '<div class="qtag">' + (G.i + 1) + " of " + G.qs.length + " · " + q.tag + '</div><div class="prompt">' + q.prompt + '</div>';
+  if (q.type === "mc") {
+    h += '<div class="mc" id="mc">' + q.options.map((o, i) => '<button data-o="' + o + '"><kbd>' + (i + 1) + "</kbd>" + o + "</button>").join("") + "</div>";
+  } else {
+    h += '<div class="ansrow"><input id="ans" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Your answer" placeholder="Type the verb…"><button class="btn" id="check">Comprobar</button></div>' +
+      '<div class="accents">' + ["á", "é", "í", "ó", "ú", "ñ"].map(a => '<button data-acc="' + a + '" aria-label="Insert ' + a + '">' + a + "</button>").join("") +
+      '<button class="hintbtn" id="hintbtn">Pista (½ pts)</button></div>';
+  }
+  h += '<div id="hintbox"></div><div id="fb"></div>';
+  $("qcard").innerHTML = h;
+  if (q.type === "mc") {
+    $("mc").onclick = e => { const b = e.target.closest("button"); if (b && !G.answered) answer(b.dataset.o, b); };
+  } else {
+    const inp = $("ans");
+    inp.focus();
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); if (!G.answered) answer(inp.value); } });
+    $("check").onclick = () => { if (!G.answered) answer(inp.value); };
+    $("qcard").querySelectorAll("[data-acc]").forEach(b => {
+      b.addEventListener("mousedown", e => e.preventDefault());
+      b.onclick = () => {
+        if (G.answered) return;
+        const s = inp.selectionStart ?? inp.value.length, en = inp.selectionEnd ?? inp.value.length;
+        inp.value = inp.value.slice(0, s) + b.dataset.acc + inp.value.slice(en);
+        inp.focus(); inp.setSelectionRange(s + 1, s + 1);
+      };
+    });
+    $("hintbtn").onclick = () => {
+      if (G.answered || G.hint) return;
+      G.hint = true;
+      $("hintbox").innerHTML = '<div class="hintbox"><b>Pista:</b> ' + q.hint + "</div>";
+      inp.focus();
+    };
+  }
+}
+document.addEventListener("keydown", e => {
+  if (!G || $("play").hidden || G.answered) return;
+  const q = G.qs[G.i];
+  if (q.type === "mc" && /^[1-4]$/.test(e.key)) {
+    const b = $("mc").children[+e.key - 1];
+    if (b) answer(b.dataset.o, b);
+  }
+});
+function answer(raw, btn) {
+  const q = G.qs[G.i];
+  if (q.type === "type" && !raw.trim()) { $("ans").focus(); return; }
+  G.answered = true;
+  const given = norm(raw), want = norm(q.answer);
+  let res = "bad";
+  if (given === want) res = "ok";
+  else if (q.type === "type" && stripAcc(given) === stripAcc(want)) res = "almost";
+
+  let pts = 0;
+  if (res !== "bad") {
+    G.streak++; G.bestStreak = Math.max(G.bestStreak, G.streak);
+    pts = 100 + Math.min(G.streak - 1, 5) * 20;
+    if (res === "almost") pts = Math.round(pts / 2);
+    if (G.hint) pts = Math.round(pts / 2);
+  } else {
+    G.streak = 0;
+    if (G.level.lives && !G.review) G.lives--;
+    G.missed.push({ q, given: raw.trim() });
+  }
+  G.score += pts;
+  G.results[G.i] = res;
+
+  if (q.type === "mc") {
+    $("mc").querySelectorAll("button").forEach(b => { b.disabled = true; if (b.dataset.o === q.answer) b.classList.add("ok"); });
+    if (res === "bad" && btn) btn.classList.add("bad");
+  } else {
+    const inp = $("ans"); inp.readOnly = true; inp.classList.add(res); $("check").disabled = true;
+  }
+  const blank = $("blank");
+  if (blank) { blank.textContent = q.answer; if (res === "bad") blank.classList.add("filled-bad"); }
+
+  const heads = { ok: rand(["¡Correcto!", "¡Excelente!", "¡Muy bien!", "¡Perfecto!", "¡Eso es!"]), almost: "¡Casi! Check the accent", bad: rand(["¡Ay, no!", "Incorrecto", "Casi, pero no"]) };
+  const last = G.i === G.qs.length - 1 || (G.level.lives && !G.review && G.lives <= 0);
+  $("fb").innerHTML = '<div class="feedback ' + res + '"><div class="head">' + heads[res] + '</div>' +
+    (res !== "ok" ? '<div class="correct">Answer: ' + q.answer + "</div>" : "") +
+    '<div class="why">' + q.why + "</div></div>" +
+    '<div style="margin-top:12px"><button class="btn" id="next">' + (last ? "Ver resultados" : "Siguiente →") + "</button></div>";
+  if (pts) { const s = document.createElement("div"); s.className = "pts"; s.textContent = "+" + pts; $("qcard").appendChild(s); }
+  renderHud();
+  $("next").onclick = next;
+  $("next").focus();
+}
+function next() {
+  if ((G.level.lives && !G.review && G.lives <= 0) || G.i >= G.qs.length - 1) return finish();
+  G.i++; renderQ();
+}
+function finish() {
+  const n = G.qs.length, answered = G.results.filter(Boolean).length;
+  const ok = G.results.filter(r => r === "ok").length, almost = G.results.filter(r => r === "almost").length;
+  const acc = (ok + almost * .5) / n;
+  const dead = G.level.lives && !G.review && G.lives <= 0;
+  const stars = dead ? 0 : acc >= .9 ? 3 : acc >= .7 ? 2 : acc >= .5 ? 1 : 0;
+  if (!G.review) saveBest(G.level.id, G.score, stars);
+  const stamp = dead ? "Game over" : stars === 3 ? "¡Lotería!" : stars >= 1 ? "¡Bien hecho!" : "Otra vez";
+  const msg = dead ? "El Jefe won this time. Review the misses below and try again."
+    : stars === 3 ? "You are ready for this part of the test." : stars === 2 ? "Close. Clear your misses below and you've got it."
+    : "Check the Hoja de repaso tab, then play this card again.";
+  $("results").innerHTML = '<div class="result">' +
+    '<div class="stamp' + (dead || !stars ? " lose" : "") + '">' + stamp + "</div>" +
+    '<div class="bigstars">' + starStr(stars) + "</div>" +
+    "<p style=\"margin:0;max-width:46ch\">" + msg + "</p>" +
+    '<div class="statrow"><div class="stat"><b>' + G.score + '</b><span>puntos</span></div>' +
+    '<div class="stat"><b>' + ok + "/" + n + '</b><span>correctas</span></div>' +
+    '<div class="stat"><b>' + G.bestStreak + '</b><span>mejor racha</span></div>' +
+    (almost ? '<div class="stat"><b>' + almost + '</b><span>accent slips</span></div>' : "") +
+    (dead ? '<div class="stat"><b>' + answered + "/" + n + '</b><span>reached</span></div>' : "") + "</div>" +
+    (G.missed.length ? '<div class="missed"><h3>Repasa estos</h3><ul>' + G.missed.map(m =>
+      "<li>" + m.q.prompt.replace(/<span class="gloss">.*?<\/span>/, "").replace(/<br>/g, " ").replace(/<span class="blank" id="blank">&nbsp;<\/span>/, "___") +
+      '<br><span class="yours">' + (m.given || "—") + '</span> → <span class="right">' + m.q.answer + "</span><br><small>" + m.q.why + "</small></li>").join("") + "</ul></div>" : "") +
+    '<div class="actions">' +
+    (G.missed.length ? '<button class="btn" id="r-missed">Practice my misses</button>' : "") +
+    '<button class="btn' + (G.missed.length ? " alt" : "") + '" id="r-again">Play again</button>' +
+    '<button class="btn alt" id="r-home">All cards</button></div></div>';
+  show("results");
+  const missedQs = G.missed.map(m => Object.assign({}, m.q)), lvl = G.level;
+  if ($("r-missed")) $("r-missed").onclick = () => start(lvl, shuffle(missedQs));
+  $("r-again").onclick = () => start(lvl);
+  $("r-home").onclick = () => renderHome();
+  (($("r-missed") || $("r-again"))).focus();
+}
+
+/* exam countdown */
+(function () {
+  const d = new Date(), m = d.getMonth(), day = d.getDate();
+  if (m === 9 && day === 28) $("examen").textContent = "Unit test: tomorrow, October 29";
+  else if (m === 9 && day === 29) $("examen").textContent = "Unit test: today. ¡Buena suerte!";
+})();
+
+renderHome();
+})();
+</script>
+</body>
+</html>
